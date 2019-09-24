@@ -125,7 +125,7 @@ def describe_task_definitions(ctx, task_definition, export, output, cluster):
 @click.option('-c', '--cluster',
               help="Specify cluster to execute command. Default usage cluster from context.")
 @click.pass_context
-def describe_services(ctx, service, export, events, number, output, cluster):
+def describe_services(ctx, service, export, events, items, output, cluster):
     """
     \b
     # Describe service
@@ -154,8 +154,8 @@ def describe_services(ctx, service, export, events, number, output, cluster):
             _created_at = '\033[93m{}\033[0m '.format(event.get('createdAt').strftime('%Y-%m-%d %H:%M:%S'))
             _message = event.get('message')
             out.append('{}{}'.format(_created_at, _message))
-        if number:
-            out = out[-abs(number):]
+        if items:
+            out = out[-abs(items):]
         click.echo('\n'.join(out))
     else:
         if export:

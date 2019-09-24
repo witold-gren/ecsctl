@@ -210,7 +210,7 @@ def get_container_instance(ctx, cluster, quiet, sort_by, output):
               help="Specify cluster to execute command. Default usage cluster from context.")
 #@click.option('--filter', 'filter_val', multiple=True)
 @click.pass_context
-def get_task(ctx, cluster, sort_by, status, number, quiet, json_path, output):  # filter_val=None
+def get_task(ctx, cluster, sort_by, status, items, quiet, json_path, output):  # filter_val=None
     """
     \b
     # Show all running tasks.
@@ -315,8 +315,8 @@ def get_task(ctx, cluster, sort_by, status, number, quiet, json_path, output):  
                 row = [row[0]]
             out.append(row)
 
-        if number:
-            out = out[-number:]
+        if items:
+            out = out[-items:]
 
         if not quiet:
             headers = ['TASK ID', 'STATUS', 'CONTAINERS', 'PORTS', 'TASK DEFINITION', 'AGE', 'EC2 PRIVATE IP', 'LOGS']
