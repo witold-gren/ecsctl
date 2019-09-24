@@ -195,7 +195,7 @@ def get_container_instance(ctx, cluster, quiet, sort_by, output):
 @get.command(name='task', short_help="List task from your cluster.")
 @click.option('--status', type=click.Choice(TASK_STATUS), default='RUNNING',
               help="Filter task usage status.")
-@click.option('--number', type=int,
+@click.option('--items', type=int,
               help="Set numbers of items to display.")
 @click.option('--quiet', is_flag=True,
               help="Only display numeric IDs")
@@ -230,7 +230,7 @@ def get_task(ctx, cluster, sort_by, status, number, quiet, json_path, output):  
 
     \b
     # Show last 10 task with status stopped and order by stopped time.
-    cmd::ecsctl get task --status STOPPED --sort-by "stoppedAt" --number 10
+    cmd::ecsctl get task --status STOPPED --sort-by "stoppedAt" --items 10
 
     \b
     # Get all running task and create custom clumn: taks name and memory reservation.

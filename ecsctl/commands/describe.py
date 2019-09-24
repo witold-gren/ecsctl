@@ -116,6 +116,8 @@ def describe_task_definitions(ctx, task_definition, export, output, cluster):
 @click.argument('service', required=True)
 @click.option('--events', is_flag=True, default=False,
               help="The event stream for your service.")
+@click.option('--items', type=int,
+              help="Set numbers of items to display.")
 @click.option('--export', is_flag=True, default=False,
               help="Get data without cluster information.")
 @click.option('-o', '--output', type=click.Choice(['json', 'yaml']), default='json', show_default=True,
@@ -123,7 +125,7 @@ def describe_task_definitions(ctx, task_definition, export, output, cluster):
 @click.option('-c', '--cluster',
               help="Specify cluster to execute command. Default usage cluster from context.")
 @click.pass_context
-def describe_services(ctx, service, export, events, output, cluster):
+def describe_services(ctx, service, export, events, number, output, cluster):
     """
     \b
     # Describe service
@@ -147,10 +149,14 @@ def describe_services(ctx, service, export, events, output, cluster):
     service_resp = bw.describe_service(cluster=cluster, service=service)
     if events:
         events = sorted(service_resp.get('events', []), key=lambda k: k.get('createdAt'))
+        out = []
         for event in events:
             _created_at = '\033[93m{}\033[0m '.format(event.get('createdAt').strftime('%Y-%m-%d %H:%M:%S'))
             _message = event.get('message')
-            click.echo('{}{}'.format(_created_at, _message))
+            out.append('{}{}'.format(_created_at, _message))
+        if number:
+            out = out[-abs(number):]
+        click.echo('\n'.join(out))
     else:
         if export:
             service_resp = bw.strip_service_data(service_resp)
