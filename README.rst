@@ -33,7 +33,8 @@ kubernetes are not possible here in ECS.
 Usage
 -----
 
-::
+.. code:: bash
+
     $ ecsctl --help
 
     Usage: ecsctl [OPTIONS] COMMAND [ARGS]...
@@ -84,25 +85,25 @@ Configure
 
 Create configuration for new cluster usage aws profile
 
-::
+.. code:: bash
 
     $ ecsctl config set my-own-config-name --cluster-name my-cluster --aws-profile my-aws-profile
 
 Create configuration for new cluster usage access-key and secret-access
 
-::
+.. code:: bash
 
     $ ecsctl config set my-own-config-name --cluster-name my-cluster --aws-access-key-id XXX --aws-secret-access-key YYY --aws-region ZZZ
 
 Set docker port for existing cluster
 
-::
+.. code:: bash
 
     $ ecsctl config set my-own-config-name --docker-port 64646
 
 Set docker api version for existing cluster
 
-::
+.. code:: bash
 
     $ ecsctl config set my-own-config-name --docker-api-version 1.30
 
@@ -112,19 +113,19 @@ Show configuration
 
 Show configuration for default cluster
 
-::
+.. code:: bash
 
     $ ecsctl config show
 
 Show configuration for all configured clusters
 
-::
+.. code:: bash
 
     $ ecsctl config show --show-all
 
 Show path for config file
 
-::
+.. code:: bash
 
     $ ecsctl config show --show-path
 
@@ -134,7 +135,7 @@ Switch context
 
 Switch default cluster:
 
-::
+.. code:: bash
 
     $ ecsctl config context default2
 
@@ -144,7 +145,7 @@ Cluster
 
 List clusters:
 
-::
+.. code:: bash
 
     $ ecsctl get clusters
     NAME                    STATUS      RUNNING    PENDING    INSTANCE COUNT
@@ -159,26 +160,26 @@ List clusters:
 
 Get cluster details:
 
-::
+.. code:: bash
 
     $ ecsctl describe cluster default
 
 
 Check CPU/Memory utilization:
 
-::
+.. code:: bash
 
     $ ecsctl top cluster
 
 Show avaraged usage resource from last 1h (Current we have 20 September 2019 12:35)
 
-::
+.. code:: bash
 
     $ ecsctl top cluster --start-time 2019-09-20T12:35:00
 
 Show avaraged usage resource from last 1d
 
-::
+.. code:: bash
 
     ecsctl top cluster --start-time 2019-09-20T12:35:00 --end-time 2019-09-19T12:35:00
 
@@ -188,7 +189,7 @@ Container Instances (nodes)
 
 List nodes:
 
-::
+.. code:: bash
 
     % ecsctl get nodes --cluster mycluster
     INSTANCE ID                           EC2 INSTANCE ID      STATUS      RUNNING COUNT
@@ -196,14 +197,14 @@ List nodes:
 
 Get node detail:
 
-::
+.. code:: bash
 
     % ecsctl describe node 00000000-1111-2222-3333-444444444444
 
 
 Drain/undrain node:
 
-::
+.. code:: bash
 
     % ecsctl drain 00000000-1111-2222-3333-444444444444
 
@@ -212,25 +213,25 @@ Services
 
 List services:
 
-::
+.. code:: bash
 
     % ecsctl get services
 
 List services in certain order:
 
-::
+.. code:: bash
 
     % ecsctl get services --sort-by "createdAt"
 
 Delete a service:
 
-::
+.. code:: bash
 
     % ecsctl delete service badservice
 
 Delete a service (even if it has desiredCount > 0):
 
-::
+.. code:: bash
 
     % ecsctl delete service badservice --force
 
@@ -238,7 +239,7 @@ Delete a service (even if it has desiredCount > 0):
 Run container quick start
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-::
+.. code:: bash
 
     % ecsctl run mycontainer --image busybox
     mycontainer
@@ -251,7 +252,7 @@ Run container quick start
 Run docker exec on containers (Requires customizing docker daemon to listen on internal addresses)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-::
+.. code:: bash
 
     % ecsctl get tasks
     TASK ID                               STATUS    TASK DEFINITION    AGE
