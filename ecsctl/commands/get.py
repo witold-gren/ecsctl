@@ -277,6 +277,15 @@ def get_task(ctx, cluster, sort_by, status, number, quiet, json_path, output):  
             age = humanize.naturaltime(now - created_at)
             instance = instances[r['containerInstanceArn']]['ec2_data']['PrivateIpAddress']
             containers = ' | '.join([x['name'] for x in r['containers']])
+            ports = []
+            for c in r['containers']:
+                for port in c.get('networkBindings'):
+                    p = '{}{}->{}/{}'.format(
+                        ':{}'.format(port.get('bindIP')) if not port.get('bindIP') == '0.0.0.0' else '0:',
+                        port.get('hostPort'),
+                        port.get('containerPort'),
+                        port.get('protocol'))
+                    ports.append(p)
 
             if output:
                 info = bw.describe_task_definition(r['taskDefinitionArn'], cluster=cluster)
@@ -297,7 +306,7 @@ def get_task(ctx, cluster, sort_by, status, number, quiet, json_path, output):  
                         l.append('none')
                 logs, containers = ' | '.join(l), ' | '.join(c)
 
-            row = [task_id, status, containers, task_def, age, instance]
+            row = [task_id, status, containers, '\n'.join(ports), task_def, age, instance]
             if output:
                 row.append(logs)
             # if filter_val:
@@ -310,7 +319,7 @@ def get_task(ctx, cluster, sort_by, status, number, quiet, json_path, output):  
             out = out[-number:]
 
         if not quiet:
-            headers = ['TASK ID', 'STATUS', 'CONTAINERS', 'TASK DEFINITION', 'AGE', 'EC2 PRIVATE IP', 'LOGS']
+            headers = ['TASK ID', 'STATUS', 'CONTAINERS', 'PORTS', 'TASK DEFINITION', 'AGE', 'EC2 PRIVATE IP', 'LOGS']
     output = tabulate.tabulate(out, headers=headers, tablefmt='plain')
     click.echo(output)
 
