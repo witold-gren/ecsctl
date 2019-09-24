@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+from setuptools import setup, find_packages
 
-from setuptools import setup
 
 install_requires = [
     'boto3>=1.4.5',
@@ -29,15 +29,17 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='ecsctl',
-    version='20190411',
+    version='20190924',
     description='kubectl-style command line client for AWS ECS.',
+    license="MIT license",
     long_description=long_description,
     author='Witold Gren',
     author_email='witold.gren@gmail.com',
     url='https://github.com/witold-gren/ecsctl',
-    packages=['ecsctl'],
+    packages=find_packages(include=['ecsctl', 'commands']),
     entry_points={'console_scripts': ['ecsctl = ecsctl.__main__:main']},
     install_requires=install_requires,
     keywords=['ECS', 'ecsctl', 'kubectl', 'AWS', 'docker'],
     classifiers=classifiers,
+    include_package_data=True,
 )
