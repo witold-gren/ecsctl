@@ -15,7 +15,8 @@ install_requires = [
     'stringcase>=1.2.0',
     'pyyaml>=5.1.2',
     'oyaml>=0.9',
-    'pygments>=2.4.2'
+    'pygments>=2.4.2',
+    'jsonpath-ng>=1.4.3'
 ]
 
 classifiers = [
@@ -36,8 +37,12 @@ setup(
     author='Witold Gren',
     author_email='witold.gren@gmail.com',
     url='https://github.com/witold-gren/ecsctl',
-    packages=find_packages(include=['ecsctl', 'commands']),
-    entry_points={'console_scripts': ['ecsctl = ecsctl.__main__:main']},
+    packages=find_packages(include=['ecsctl', 'ecsctl.commands']),
+    entry_points={
+        'console_scripts': [
+            'ecsctl = ecsctl.__main__:main'
+        ]
+    },
     install_requires=install_requires,
     keywords=['ECS', 'ecsctl', 'kubectl', 'AWS', 'docker'],
     classifiers=classifiers,
