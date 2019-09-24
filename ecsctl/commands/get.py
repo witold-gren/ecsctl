@@ -278,15 +278,14 @@ def get_task(ctx, cluster, sort_by, status, items, quiet, json_path, output):  #
             instance = instances[r['containerInstanceArn']]['ec2_data']['PrivateIpAddress']
             containers = ' | '.join([x['name'] for x in r['containers']])
             ports = []
-            for c in r['containers']:
-                for port in c.get('networkBindings'):
+            for c in r.get('containers', []):
+                for port in c.get('networkBindings', []):
                     p = '{}{}->{}/{}'.format(
                         ':{}'.format(port.get('bindIP')) if not port.get('bindIP') == '0.0.0.0' else '0:',
                         port.get('hostPort'),
                         port.get('containerPort'),
                         port.get('protocol'))
                     ports.append(p)
-
             if output:
                 info = bw.describe_task_definition(r['taskDefinitionArn'], cluster=cluster)
                 c, l = [], []

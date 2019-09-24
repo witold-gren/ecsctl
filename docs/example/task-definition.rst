@@ -91,7 +91,7 @@ Postgres
         - 5432
         mount_points:
         - container_path: /var/lib/postgresql/data
-          source_volume: volume-1
+          source_volume: rexray-vol
         log_configuration:
           log_driver: awslogs
           options:
@@ -105,9 +105,15 @@ Postgres
         - POSTGRES_USER
         - POSTGRES_PASSWORD
       volumes:
-      - name: volume-1
-        host:
-          source_path: /home/ec2-user/data/my-postgresql
+      - name: rexray-vol
+        docker_volume_configuration:
+          autoprovision: true
+          scope: shared
+          driver: rexray/ebs
+          driverOpts:
+            volumetype: gp2
+            size": "5"
+
 
 Redis
 ^^^^^
