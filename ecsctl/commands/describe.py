@@ -97,7 +97,6 @@ def describe_task_definitions(ctx, task_definition, export, output, cluster):
     if not cluster:
         cluster = ctx.obj['cluster']
     bw = ctx.obj['bw']
-
     task_definition_resp = bw.describe_task_definition(task_definition, cluster=cluster, tags=export)
     if export:
         task_definition_resp, tags = task_definition_resp
@@ -105,7 +104,7 @@ def describe_task_definitions(ctx, task_definition, export, output, cluster):
     if output == 'yaml':
         if export:
             task_definition_resp['tags'] = tags
-        task_definition_resp = bw.describe_object(task_definition_resp, export, 'TaskDefinition')
+        task_definition_resp = bw.describe_object(task_definition_resp, export, 'TaskDefinition', cluster=cluster)
         task_definition_resp = bw.convert_to_yaml(task_definition_resp)
     elif output == 'json':
         task_definition_resp = display.de_unicode(task_definition_resp)

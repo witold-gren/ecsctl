@@ -304,8 +304,9 @@ class TaskDefinition(ProxyTemplate):
         # inferenceAccelerators do't work when describe
         self.name = self.json.pop('family')
         self.tags = self._to_human_dict(self.json.pop('tags', []))
-        self._to_human_envs()
         self._to_human_ports()
+        self._to_human_envs()
+        self._to_human_secrets()
         return self._generate_template()
 
     def to_request(self, **kwargs):
@@ -325,12 +326,12 @@ class TaskDefinition(ProxyTemplate):
         """
         FROM:
         secrets:
-          - DJANGO_SECRET_KEY
+          - ENV_VAR
 
         TO:
         secrets:
           - name: DJANGO_SECRET_KEY
-            valueFrom: arn:aws:secretsmanager:region:aws_account_id:secret:secret_name-AbCdEf
+            valueFrom: arn:aws:ssm:us-west-2:585636512455:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
         """
         add_execution_role_arn = False
         container_definitions = []
@@ -355,6 +356,31 @@ class TaskDefinition(ProxyTemplate):
             execution_role = 'arn:aws:iam::{}:role/{}_ecs_parameter_store_task_definition_role'.format(
                 aws_account_id, self.cluster)
             self.yaml['executionRoleArn'] = execution_role
+
+    def _to_human_secrets(self):
+        """
+        FROM:
+        secrets:
+          - name: ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:585636512455:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+        TO:
+        secrets:
+          - ENV_VAR
+        """
+        container_definitions = []
+        for container in self.json.pop('container_definitions'):
+            secrets = []
+            for secret in container.pop('secrets', []):
+                task_name = re.findall(r'.+\/(.+)\.(.+)\.(.+)$', secret['value_from'])
+                if task_name:
+                    cluster, task_definition, var = task_name[0]
+                    if self.cluster == cluster and self.name == task_definition and var == secret['name']:
+                        secrets.append(secret['name'])
+                else:
+                    secrets.append(secret)
+            container['secrets'] = secrets
+            container_definitions.append(container)
+        self.json['container_definitions'] = container_definitions
 
     def _check_aws_group(self, boto_wrapper):
         # check cloud watch
