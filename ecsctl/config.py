@@ -1,10 +1,10 @@
 import os
-import click
+
 from configparser import RawConfigParser
 from os.path import expanduser
 
-
 __all__ = ['read_config', 'update_config', 'default_config']
+
 
 SECTION = 'ecsctl'
 CONTEXT = 'context'
@@ -25,7 +25,8 @@ default_config = {
 
 def get_config_parser():
     parser = RawConfigParser()
-    parser.read([CONFIG_FILE])
+    if os.path.isfile(CONFIG_FILE):
+        parser.read([CONFIG_FILE])
     return parser
 
 
@@ -39,17 +40,21 @@ def get_clusters():
 
 
 def get_default_context():
+    default = None
     parser = get_config_parser()
-    return parser.get(SECTION, CONTEXT)
+    if parser.has_section(SECTION):
+        default = parser.get(SECTION, CONTEXT)
+    return default
 
 
 def read_config(show_file_path=None, show_all=None):
     context = get_default_context()
     parser = get_config_parser()
-    rv = {}
+    rv, pars = {}, {}
     if show_file_path:
         print(CONFIG_FILE)
-    pars = parser.items(context)
+    if context:
+        pars = parser.items(context)
     if show_all:
         for section in parser.sections():
             parse = {}
