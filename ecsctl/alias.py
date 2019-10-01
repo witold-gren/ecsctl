@@ -29,7 +29,12 @@ class AliasedGroup(HelpColorsGroup):
             'pods': 'task',
             'ta': 'task',
             'tasks': 'task',
-            'log': 'logs'
+            'log': 'logs',
+            'alb': 'loadbalancer',
+            'lb': 'loadbalancer',
+            'hz': 'hosted-zones',
+            'zone': 'hosted-zones',
+            'route53': 'hosted-zones'
         }
         if cmd_name in mapping:
             rv = click.Group.get_command(self, ctx, mapping[cmd_name])
