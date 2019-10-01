@@ -378,7 +378,8 @@ class TaskDefinition(ProxyTemplate):
                         secrets.append(secret['name'])
                 else:
                     secrets.append(secret)
-            container['secrets'] = secrets
+            if secrets:
+                container['secrets'] = secrets
             container_definitions.append(container)
         self.json['container_definitions'] = container_definitions
 
@@ -417,6 +418,14 @@ class Service(ProxyTemplate):
         self.json['role'] = self.json.pop('role_arn', None)
         if not 'deployment_controller' in self.json:
             self.json['deployment_controller'] = {'type': 'ECS'}
+        if 'propagate_tags' in self.json:
+            if self.json.get('propagate_tags') == "NONE":
+                del self.json['propagate_tags']
+        if 'enable_e_c_s_managed_tags' in self.json:
+            data = self.json.pop('enable_e_c_s_managed_tags')
+            self.json['enable_ecs_managed_tags'] = data
+        if 'role' in self.json and not self.json['role']:
+            del self.json['role']
         return self._generate_template()
 
     def to_request(self, **kwargs):
@@ -426,6 +435,9 @@ class Service(ProxyTemplate):
         tags = self._from_human_dict(self.tags)
         if tags:
             self.yaml['tags'] = tags
+        if 'enable_ecs_managed_tags' in self.yaml:
+            data = self.yaml.pop('enable_ecs_managed_tags')
+            self.yaml['enableECSManagedTags'] = data
         return self.yaml
 
 

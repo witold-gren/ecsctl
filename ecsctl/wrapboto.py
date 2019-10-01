@@ -819,12 +819,7 @@ class BotoWrapper:
                 'Select namespaces `spec.service_registries._namespace: ` for service discovery in service file. '
                 'Current you have {} namespaces: {}'.format(
                     len(namespaces['Namespaces'], ','.join([x['Name'] for x in namespaces['Namespaces']]))))
-
-        # TODO: The specified serviceRegistries value is configured to use a type 'A' DNS record, which is not
-        #  supported when specifying 'host' or 'bridge' for networkMode. Change to 'SRV' record, which is the
-        #  supported DNS record type.
-        #  IF WE USAGE AWSVPC THEN BETTER IS USAGE DNS_RECORE_TYPE `A`
-        dns_record_type = 'SRV'                                 # TODO: SRV/A
+        dns_record_type = 'SRV'
         response = self.servicediscovery.create_service(
             Name=service['serviceName'],
             NamespaceId=ns['Id'],
@@ -1083,8 +1078,8 @@ class BotoWrapper:
             return resp['taskDefinition'], resp.get('tags', [])
         return resp['taskDefinition']
 
-    def describe_object(self, data, export, obj='TaskDefinition'):
-        tmpl = getattr(template, obj)(json=data, clean=export)
+    def describe_object(self, data, export, obj='TaskDefinition', **kwargs):
+        tmpl = getattr(template, obj)(json=data, clean=export, **kwargs)
         return tmpl.to_file()
 
     def convert_to_yaml(self, data):
@@ -1248,14 +1243,12 @@ class BotoWrapper:
                             print(templ)
                         else:
                             events.append((self.__convert_date(event.get('timestamp')), templ))
-
                 if events:
                     events = sorted(events, key=lambda k: k[0])
                     for event in events:
                         print(event[1])
                 else:
                     print('[empty log]')
-
                 return '', False
         return "This task don\'t usage CloudWatch Logs.", False
 
