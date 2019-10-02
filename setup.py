@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 install_requires = [
-    'boto3>=1.4.5',
+    'boto3>=1.9.240',
     'click>=6.7',
     'configparser>=3.5.0',
     'docker>=2.4.2',
