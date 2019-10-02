@@ -330,8 +330,8 @@ class TaskDefinition(ProxyTemplate):
 
         TO:
         secrets:
-          - name: DJANGO_SECRET_KEY
-            valueFrom: arn:aws:ssm:us-west-2:585636512455:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+          - name: ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
         """
         add_execution_role_arn = False
         container_definitions = []
@@ -362,7 +362,7 @@ class TaskDefinition(ProxyTemplate):
         FROM:
         secrets:
           - name: ENV_VAR
-            valueFrom: arn:aws:ssm:us-west-2:585636512455:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
         TO:
         secrets:
           - ENV_VAR

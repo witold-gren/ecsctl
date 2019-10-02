@@ -12,9 +12,9 @@ APP_DIR = os.path.join(expanduser("~"), '.ecsctl')
 CONFIG_FILE = os.path.join(APP_DIR, 'config')
 
 default_config = {
-    'cluster': 'default',
-    'docker_port': 2375,
-    'docker_api_version': '1.24',
+    'cluster': os.environ.get('AWS_ECS_CLUSTER_NAME', 'default'),
+    'docker_port': os.environ.get('AWS_ECS_DOCKER_PORT', 2375),
+    'docker_api_version': os.environ.get('AWS_ECS_DOCKER_API_VERSION', '1.24'),
     'aws-access-key-id': None,
     'aws-secret-access-key': None,
     'aws-region': None,
