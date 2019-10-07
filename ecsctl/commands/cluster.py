@@ -42,7 +42,7 @@ def undrain(ctx, node, cluster):
 @click.option('--cluster')
 @click.option('-i', '--stdin', is_flag=True, default=False, show_default=True)
 @click.option('-t', '--tty', is_flag=True, default=False, show_default=True)
-@click.option('--container', default=None)
+@click.option('-c', '--container', default=None)
 @click.option('--ssh-user')
 @click.option('--ssh-bastion-user')
 @click.option('--ssh-bastion-ip')
@@ -54,7 +54,32 @@ def exec_command(ctx, task, command, stdin, tty, cluster, container,
                  ssh_user, ssh_bastion_user, ssh_bastion_ip, ssh_key_location):
     """
     \b
-    TODO: Describe how to usage exec in command line
+    # Show date in docker
+    cmd::ecsctl exec 78a4d51c-d7ff-439c-91bf-a459482b2c93 date
+
+    \b
+    # Connect to first container in task ID
+    cmd::ecsctl exec -it 78a4d51c-d7ff-439c-91bf-a459482b2c93 bash
+
+    \b
+    # Connect to backend container in task ID
+    cmd::ecsctl exec -it -c backend 78a4d51c-d7ff-439c-91bf-a459482b2c93 sh
+
+    \b
+    # Connect to backend container in task ID
+    cmd::ecsctl exec -it -c backend 78a4d51c-d7ff-439c-91bf-a459482b2c93 sh
+
+    \b
+    # Connect to backend container in task ID with ubuntu user
+    cmd::ecsctl exec -it --ssh-user ubuntu -c backend 78a4d51c-d7ff-439c-91bf-a459482b2c93 bash
+
+    \b
+    # Connect to backend container in task ID with custom ssh key
+    cmd::ecsctl exec -it --ssh-key-location ~/.ssh/my-key -c backend 78a4d51c-d7ff-439c-91bf-a459482b2c93 bash
+
+    \b
+    # Connect to backend container in task ID with bastion host IP and specific user
+    cmd::ecsctl exec -it --ssh-bastion-ip 1.2.3.4 --ssh-bastion-user dev -c backend 78a4d51c-d7ff-439c-91bf-a459482b2c93 bash
     """
     if not cluster:
         cluster = ctx.obj['cluster']

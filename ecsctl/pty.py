@@ -44,7 +44,7 @@ class Pty:
               "grep -w \"{container_name}\" | " \
               "awk '{{print $1}}'".format(base_cmd=base_cmd, container_name=self.container)
         resp = subprocess.check_output(cmd, shell=True)
-        return resp.decode("utf-8")
+        return resp.decode("utf-8").strip()
 
     def _add_ssh_key(self):
         process = subprocess.run(['ssh-add', self.ssh_key_location])
@@ -64,7 +64,9 @@ class Pty:
                 user=self.ssh_user)
             if not container_id:
                 container_id = self._get_container_id_from_ssh(base_cmd)
-            cmd = '{base_cmd} docker exec -it {container_id} {command}'.format(
+            cmd = '{base_cmd} docker exec{stdin}{tty} {container_id} {command}'.format(
+                stdin=' -i' if self.stdin else '',
+                tty=' -t' if self.tty else '',
                 base_cmd=base_cmd,
                 container_id=container_id,
                 command=''.join(self.command))
@@ -75,7 +77,9 @@ class Pty:
                 public_ip=public_ip)
             if not container_id:
                 container_id = self._get_container_id_from_ssh(base_cmd)
-            cmd = '{base_cmd} docker exec -it {container_id} {command}'.format(
+            cmd = '{base_cmd} docker exec{stdin}{tty} {container_id} {command}'.format(
+                stdin=' -i' if self.stdin else '',
+                tty=' -t' if self.tty else '',
                 base_cmd=base_cmd,
                 container_id=container_id,
                 command=''.join(self.command))
