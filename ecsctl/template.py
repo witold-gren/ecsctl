@@ -259,8 +259,8 @@ class ProxyTemplate:
         _empty = []
         if data:
             for item in data:
-                _key, _value = item.split('=')
-                _empty.append({key: _key, value: _value})
+                _key, *_value = item.split('=')
+                _empty.append({key: _key, value: '='.join(_value)})
             return _empty
         return data
 
