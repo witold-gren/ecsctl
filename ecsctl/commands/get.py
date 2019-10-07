@@ -515,7 +515,7 @@ def get_zone(ctx, hosted_zone):
 
     \b
     # Show all record from dev.example.com
-    cmd::ecsctl get hosted-zones dev.example.com
+    cmd::ecsctl get hosted-zones /hostedzone/00000000000000000000
     """
     bw = ctx.obj['bw']
     if not hosted_zone:

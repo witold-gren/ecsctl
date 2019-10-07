@@ -88,13 +88,15 @@ Configure environment variables for usage ecscli
 .. code:: bash
 
     $ export AWS_ECS_CLUSTER_NAME=xxx
-    $ export AWS_ECS_DOCKER_PORT=xxx
-    $ export AWS_ECS_DOCKER_API_VERSION=xxx
     $ export AWS_ACCESS_KEY_ID=xxx
     $ export AWS_SECRET_ACCESS_KEY=xxx
     $ export AWS_DEFAULT_REGION=xxx
     $ export AWS_SESSION_TOKEN=xxx
     $ export AWS_PROFILE=xxx
+    $ export AWS_ECS_SSH_USER=xxx
+    $ export AWS_ECS_SSH_BASTION_USER=xxx
+    $ export AWS_ECS_SSH_BASTION_IP=xxx
+    $ export AWS_ECS_SSH_KEY_LOCATION=xxx
 
 Create configuration for new cluster usage aws profile
 

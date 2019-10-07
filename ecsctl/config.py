@@ -13,13 +13,15 @@ CONFIG_FILE = os.path.join(APP_DIR, 'config')
 
 default_config = {
     'cluster': os.environ.get('AWS_ECS_CLUSTER_NAME', 'default'),
-    'docker_port': os.environ.get('AWS_ECS_DOCKER_PORT', 2375),
-    'docker_api_version': os.environ.get('AWS_ECS_DOCKER_API_VERSION', '1.24'),
-    'aws-access-key-id': None,
-    'aws-secret-access-key': None,
-    'aws-region': None,
-    'aws-session-token': None,
-    'aws-profile': None,
+    'aws_access_key_id': None,
+    'aws_secret_access_key': None,
+    'aws_region': None,
+    'aws_session_token': None,
+    'aws_profile': None,
+    'ssh_user': os.environ.get('AWS_ECS_SSH_USER', 'ec2-user'),
+    'ssh_bastion_user': os.environ.get('AWS_ECS_SSH_BASTION_USER', 'ec2-user'),
+    'ssh_bastion_ip': os.environ.get('AWS_ECS_SSH_BASTION_IP', None),
+    'ssh_key_location': os.environ.get('AWS_ECS_SSH_KEY_LOCATION', "~/.ssh/id_rsa"),
 }
 
 
@@ -72,7 +74,10 @@ def update_config(name, cluster_name, **kwargs):
     parser = get_config_parser()
     if not parser.has_section(name):
         parser.add_section(name)
-    parser.set(name, 'cluster', cluster_name)
+    if cluster_name:
+        parser.set(name, 'cluster', cluster_name)
+    else:
+        cluster_name = parser.get(name, 'cluster')
     for key, value in kwargs.items():
         if value:
             parser.set(name, key, value)

@@ -11,7 +11,7 @@ def config():
 
 @config.command(name='set')
 @click.argument('name', required=True)
-@click.option('--cluster-name', required=True)
+@click.option('--cluster-name')
 @click.option('--docker-port')
 @click.option('--docker-api-version')
 @click.option('--aws-access-key-id')
@@ -19,6 +19,10 @@ def config():
 @click.option('--aws-region')
 @click.option('--aws-session-token')
 @click.option('--aws-profile')
+@click.option('--ssh-user', default="ec2-user", show_default=True)
+@click.option('--ssh-bastion-user', default="ec2-user", show_default=True)
+@click.option('--ssh-bastion-ip')
+@click.option('--ssh-key-location', default="~/.ssh/id_rsa", show_default=True)
 @click.pass_context
 def config_set(ctx, name, cluster_name, **kwargs):
     """
@@ -37,6 +41,10 @@ def config_set(ctx, name, cluster_name, **kwargs):
     \b
     # Set docker api version for existing cluster
     cmd::ecsctl config set my-own-config-name --docker-api-version 1.30
+
+    \b
+    # Set bastion host IP and ssh key
+    cmd::ecsctl config set my-own-config-name --ssh-bastion-ip 1.2.3.4 --ssh-key-location ~/.ssh/my_extra_key
     """
     out = update_config(name, cluster_name, **kwargs)
     click.echo(out)

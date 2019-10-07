@@ -43,28 +43,34 @@ def undrain(ctx, node, cluster):
 @click.option('-i', '--stdin', is_flag=True, default=False, show_default=True)
 @click.option('-t', '--tty', is_flag=True, default=False, show_default=True)
 @click.option('--container', default=None)
-@click.option('--docker-port', type=int)
-@click.option('--docker-api-version')
+@click.option('--ssh-user')
+@click.option('--ssh-bastion-user')
+@click.option('--ssh-bastion-ip')
+@click.option('--ssh-key-location')
 @click.argument('task', required=True)
 @click.argument('command', nargs=-1)
 @click.pass_context
-def exec_command(ctx, task, command, stdin, tty, cluster, docker_port,
-                 docker_api_version, container):
+def exec_command(ctx, task, command, stdin, tty, cluster, container,
+                 ssh_user, ssh_bastion_user, ssh_bastion_ip, ssh_key_location):
     """
     \b
     TODO: Describe how to usage exec in command line
     """
     if not cluster:
         cluster = ctx.obj['cluster']
-    if not docker_port:
-        docker_port = int(ctx.obj['docker_port'])
-    if not docker_api_version:
-        docker_api_version = ctx.obj['docker_api_version']
+    if not ssh_user:
+        ssh_user = ctx.obj['ssh_user']
+    if not ssh_bastion_user:
+        ssh_bastion_user = ctx.obj['ssh_bastion_user']
+    if not ssh_bastion_ip:
+        ssh_bastion_ip = ctx.obj['ssh_bastion_ip']
+    if not ssh_key_location:
+        ssh_key_location = ctx.obj['ssh_key_location']
     bw = ctx.obj['bw']
     pty = Pty(bw=bw, task=task, command=command, cluster=cluster,
-              tty=tty, stdin=stdin, port=docker_port,
-              api_version=docker_api_version,
-              container=container)
+              tty=tty, stdin=stdin, container=container,
+              ssh_user=ssh_user, ssh_bastion_user=ssh_bastion_user,
+              ssh_bastion_ip=ssh_bastion_ip, ssh_key_location=ssh_key_location)
     pty.exec_command()
 
 
