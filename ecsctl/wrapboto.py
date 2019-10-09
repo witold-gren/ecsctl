@@ -821,7 +821,7 @@ class BotoWrapper:
                     len(namespaces['Namespaces'], ','.join([x['Name'] for x in namespaces['Namespaces']]))))
         dns_record_type = 'SRV'
         response = self.servicediscovery.create_service(
-            Name=service['serviceName'],
+            Name='_{}._tcp'.format(service['serviceName']),
             NamespaceId=ns['Id'],
             CreatorRequestId=service['serviceName'],
             Description='Service discovery for ECS service `{}`.'.format(service['serviceName']),
