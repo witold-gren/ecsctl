@@ -1,8 +1,10 @@
 import re
 import pytz
-import pprint
 import datetime
 import stringcase
+from .core import FileLoaderEnvs
+from jinja2 import Template
+import oyaml as yaml
 
 
 def convert_to_snakecase(data, delete_empty_values=True):
@@ -286,6 +288,16 @@ class ProxyTemplate:
                 _empty.append({key: _key, value: _value})
             return _empty
         return data
+
+    def render(self, envs=None, env_files=None):
+        obj_env = FileLoaderEnvs(env_files)
+        data = obj_env.load()
+        for env in envs:
+            k, v = env.split('=')
+            data[k] = v
+        template = Template(str(self.yaml)).render(data)
+        _load = yaml.load_all(template, Loader=yaml.Loader)
+        self.yaml = next(_load)
 
 
 class TaskDefinition(ProxyTemplate):

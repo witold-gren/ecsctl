@@ -5,15 +5,17 @@ from . import template, exceptions
 
 
 class FileLoader:
+    file_types = ["*.yaml", "*.yml"]
 
     def __init__(self, file_path):
         self.file_path = file_path
 
     def load(self):
+        files = []
         path = Path(self.file_path)
         if path.is_dir():
-            files = [x for x in path.glob("*.yaml")]
-            files.extend([x for x in path.glob("*.yml")])
+            for f_type in self.file_types:
+                files.extend([x for x in path.glob(f_type)])
             file_data = ""
             for item in files:
                 f = item.read_text()
@@ -23,6 +25,37 @@ class FileLoader:
         else:
             file_data = path.read_text()
         return yaml.load_all(file_data, Loader=yaml.Loader)
+
+
+class FileLoaderTemplate(FileLoader):
+    file_types = ["*.tpl"]
+
+
+class FileLoaderEnvs:
+    file_types = ["*.env"]
+
+    def __init__(self, files_path):
+        self.files_path = files_path
+        self.envs = {}
+
+    def _get_vars(self, item):
+        for line in item.read_text().split('\n'):
+            if line:
+                _key, *_value = line.split('=')
+                self.envs[_key] = '='.join(_value)
+
+    def load(self):
+        for file_path in self.files_path:
+            files, path = [], Path(file_path)
+            if path.is_dir():
+                for f_type in self.file_types:
+                    files.extend([x for x in path.glob(f_type)])
+                for item in files:
+                    self._get_vars(item)
+            else:
+                self._get_vars(path)
+        return self.envs
+
 
 
 class ObjectType:
