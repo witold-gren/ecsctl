@@ -810,7 +810,7 @@ class BotoWrapper:
         if len(namespaces['Namespaces']) == 1:
             ns = namespaces['Namespaces'][0]
         elif namespace:
-            for _namespace in namespaces:
+            for _namespace in namespaces['Namespaces']:
                 if _namespace['Name'] == namespace:
                     ns = _namespace
                     break
