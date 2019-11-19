@@ -1,6 +1,7 @@
 import oyaml as yaml
 from pathlib import Path
 from jsonpath_ng import parse
+from jinja2 import Template
 from . import template, exceptions
 
 
@@ -10,7 +11,7 @@ class FileLoader:
     def __init__(self, file_path):
         self.file_path = file_path
 
-    def load(self):
+    def load_raw_data(self):
         files = []
         path = Path(self.file_path)
         if path.is_dir():
@@ -24,11 +25,32 @@ class FileLoader:
                 file_data += f
         else:
             file_data = path.read_text()
+        return file_data
+
+    def load(self):
+        file_data = self.load_raw_data()
         return yaml.load_all(file_data, Loader=yaml.Loader)
 
 
 class FileLoaderTemplate(FileLoader):
     file_types = ["*.tpl"]
+
+    def __init__(self, file_path, envs, env_file):
+        super(FileLoaderTemplate, self).__init__(file_path)
+        self.envs = envs
+        self.env_file = env_file
+
+    def load_raw_data(self):
+        file_data = super(FileLoaderTemplate, self).load_raw_data()
+        return self.render(file_data)
+
+    def render(self, file_data):
+        obj_env = FileLoaderEnvs(self.env_file)
+        data = obj_env.load()
+        for env in self.envs:
+            k, v = env.split('=')
+            data[k] = v
+        return Template(str(file_data)).render(data)
 
 
 class FileLoaderEnvs:

@@ -60,15 +60,13 @@ def apply(ctx, file_path, template_path, dry_run, deploy, envs, env_file, cluste
     if file_path and not template_path:
         _type, f = 'file', core.FileLoader(file_path)
     elif template_path and not file_path:
-        _type, f = 'template', core.FileLoaderTemplate(template_path)
+        _type, f = 'template', core.FileLoaderTemplate(template_path, envs, env_file)
     else:
         click.echo(click.style(str('Usage only template or file to apply.'), fg='red'))
         return
     for doc in f.load():
         object_type = core.ObjectType(cluster=cluster, item=doc)
         tmpl = object_type.get_template()
-        if _type == 'template':
-            tmpl.render(envs, env_file)
         click.echo(click.style(object_type.ID, fg='yellow'))
         if dry_run:
             tmpl.run_before(boto_wrapper=bw)
