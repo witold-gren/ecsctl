@@ -331,13 +331,38 @@ class TaskDefinition(ProxyTemplate):
         secrets:
           - name: ENV_VAR
             valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+        ---
+        FROM:
+        secrets:
+          - ENV_VAR=CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+
+        TO:
+        secrets:
+          - name: ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+        ---
+        FROM:
+        secrets:
+          - ENV_VAR=arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+
+        TO:
+        secrets:
+          - name: ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
         """
         add_execution_role_arn = False
         container_definitions = []
         for container in self.yaml.pop('containerDefinitions'):
             secrets, secrets_param = [], []
             for var in container.pop('secrets', []):
-                secrets_param.append(secret_name(self.cluster, self.name, var))
+                if '=' in var:
+                    _param = var.split('=')[1]
+                    if '/' in _param:
+                        secrets_param.append(_param.split('/')[1])
+                    else:
+                        secrets_param.append(_param)
+                else:
+                    secrets_param.append(secret_name(self.cluster, self.name, var))
             if secrets_param:
                 add_execution_role_arn = True
                 response = boto_wrapper.ssm.get_parameters(
