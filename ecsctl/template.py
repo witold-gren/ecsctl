@@ -357,21 +357,26 @@ class TaskDefinition(ProxyTemplate):
             for var in container.pop('secrets', []):
                 if '=' in var:
                     _param = var.split('=')[1]
+                    _key = var.split('=')[0]
                     if '/' in _param:
-                        secrets_param.append(_param.split('/')[1])
+                        secrets_param.append((_key, _param.split('/')[1]))
                     else:
-                        secrets_param.append(_param)
+                        secrets_param.append((_key, _param))
                 else:
-                    secrets_param.append(secret_name(self.cluster, self.name, var))
+                    _param = secret_name(self.cluster, self.name, var)
+                    _key = var
+                    secrets_param.append((_key, _param))
             if secrets_param:
                 add_execution_role_arn = True
                 response = boto_wrapper.ssm.get_parameters(
-                    Names=secrets_param, WithDecryption=False)
+                    Names=[x[1] for x in secrets_param], WithDecryption=False)
                 if response['InvalidParameters']:
                     raise ValueError('Incorrect params: {}'.format(', '.join(response['InvalidParameters'])))
-                for x in response['Parameters']:
-                    name = x.get('Name').split('.')[-1]
-                    secrets.append({'name': name, 'valueFrom': x.get('ARN')})
+                for obj in secrets_param:
+                    key, val = obj
+                    obj = list(filter(lambda x: x['Name'] == val, response['Parameters']))
+                    if obj: obj = obj[0]
+                    secrets.append({'name': key, 'valueFrom': obj['ARN']})
                 container['secrets'] = secrets
             container_definitions.append(container)
         self.yaml['containerDefinitions'] = container_definitions
