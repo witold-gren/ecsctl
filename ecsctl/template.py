@@ -2,9 +2,6 @@ import re
 import pytz
 import datetime
 import stringcase
-from .core import FileLoaderEnvs
-from jinja2 import Template
-import oyaml as yaml
 
 
 def convert_to_snakecase(data, delete_empty_values=True):
@@ -289,16 +286,6 @@ class ProxyTemplate:
             return _empty
         return data
 
-    def render(self, envs=None, env_files=None):
-        obj_env = FileLoaderEnvs(env_files)
-        data = obj_env.load()
-        for env in envs:
-            k, v = env.split('=')
-            data[k] = v
-        template = Template(str(self.yaml)).render(data)
-        _load = yaml.load_all(template, Loader=yaml.Loader)
-        self.yaml = next(_load)
-
 
 class TaskDefinition(ProxyTemplate):
     template_name = "TaskDefinition"
@@ -344,22 +331,52 @@ class TaskDefinition(ProxyTemplate):
         secrets:
           - name: ENV_VAR
             valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+        ---
+        FROM:
+        secrets:
+          - ENV_VAR=CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+
+        TO:
+        secrets:
+          - name: ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+        ---
+        FROM:
+        secrets:
+          - ENV_VAR=arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
+
+        TO:
+        secrets:
+          - name: ENV_VAR
+            valueFrom: arn:aws:ssm:us-west-2:111122223333:parameter/CLUSTER_NAME.TASK_DEFINITION.ENV_VAR
         """
         add_execution_role_arn = False
         container_definitions = []
         for container in self.yaml.pop('containerDefinitions'):
             secrets, secrets_param = [], []
             for var in container.pop('secrets', []):
-                secrets_param.append(secret_name(self.cluster, self.name, var))
+                if '=' in var:
+                    _param = var.split('=')[1]
+                    _key = var.split('=')[0]
+                    if '/' in _param:
+                        secrets_param.append((_key, _param.split('/')[1]))
+                    else:
+                        secrets_param.append((_key, _param))
+                else:
+                    _param = secret_name(self.cluster, self.name, var)
+                    _key = var
+                    secrets_param.append((_key, _param))
             if secrets_param:
                 add_execution_role_arn = True
                 response = boto_wrapper.ssm.get_parameters(
-                    Names=secrets_param, WithDecryption=False)
+                    Names=[x[1] for x in secrets_param], WithDecryption=False)
                 if response['InvalidParameters']:
                     raise ValueError('Incorrect params: {}'.format(', '.join(response['InvalidParameters'])))
-                for x in response['Parameters']:
-                    name = x.get('Name').split('.')[-1]
-                    secrets.append({'name': name, 'valueFrom': x.get('ARN')})
+                for obj in secrets_param:
+                    key, val = obj
+                    obj = list(filter(lambda x: x['Name'] == val, response['Parameters']))
+                    if obj: obj = obj[0]
+                    secrets.append({'name': key, 'valueFrom': obj['ARN']})
                 container['secrets'] = secrets
             container_definitions.append(container)
         self.yaml['containerDefinitions'] = container_definitions

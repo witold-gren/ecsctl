@@ -810,7 +810,7 @@ class BotoWrapper:
         if len(namespaces['Namespaces']) == 1:
             ns = namespaces['Namespaces'][0]
         elif namespace:
-            for _namespace in namespaces:
+            for _namespace in namespaces['Namespaces']:
                 if _namespace['Name'] == namespace:
                     ns = _namespace
                     break
@@ -1430,7 +1430,7 @@ class BotoWrapper:
         cluster = kwargs.pop('cluster', None)
         task_definition_family = kwargs.pop('task_definition_family', None)
         if cluster and task_definition_family:
-            filter_param = {'Key': 'Name', 'Values': ['{}.{}'.format(cluster, task_definition_family)]}
+            filter_param = {'Key': 'Name', 'Values': ['{}.{}.'.format(cluster, task_definition_family)]}
             kwargs['Filters'] = [filter_param]
 
         while True:
@@ -1465,8 +1465,12 @@ class BotoWrapper:
         parameters, response = [], []
         for secret in self.__get_all_secret(cluster=cluster, task_definition_family=task_definition_family):
             parameters.append(secret.get('Name'))
-        if parameters:
-            response = self.ssm.get_parameters(Names=parameters, WithDecryption=True)
+        for cut_parameters in [parameters[i:i + 10] for i in range(0, len(parameters), 10)]:
+            r = self.ssm.get_parameters(Names=cut_parameters, WithDecryption=True)
+            if not 'Parameters' in response:
+                response = r
+            else:
+                response['Parameters'].extend(r.get('Parameters', []))
         return response.get('Parameters', [])
 
     def all_service_discovery(self):
