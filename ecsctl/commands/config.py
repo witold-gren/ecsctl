@@ -12,8 +12,6 @@ def config():
 @config.command(name='set')
 @click.argument('name', required=True)
 @click.option('--cluster-name')
-@click.option('--docker-port')
-@click.option('--docker-api-version')
 @click.option('--aws-access-key-id')
 @click.option('--aws-secret-access-key')
 @click.option('--aws-region')
@@ -33,14 +31,6 @@ def config_set(ctx, name, cluster_name, **kwargs):
     \b
     # Create configuration for new cluster usage access-key and secret-access
     cmd::ecsctl config set my-own-config-name --cluster-name my-cluster --aws-access-key-id XXX --aws-secret-access-key YYY --aws-region ZZZ
-
-    \b
-    # Set docker port for existing cluster
-    cmd::ecsctl config set my-own-config-name --docker-port 64646
-
-    \b
-    # Set docker api version for existing cluster
-    cmd::ecsctl config set my-own-config-name --docker-api-version 1.30
 
     \b
     # Set bastion host IP and ssh key
