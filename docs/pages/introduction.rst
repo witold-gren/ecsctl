@@ -1,6 +1,6 @@
-============
+************
 Introduction
-============
+************
 
 `ecsctl` is commandline tool for managing the whole lifecycle of your application:
 

@@ -1,11 +1,11 @@
-============
+************
 Installation
-============
+************
 
 `ecsctl` is a python package. If you need install python package you have several options.
 
 Install via pip
----------------
+===============
 
 If you need install python package globally usage this command.
 
@@ -15,7 +15,7 @@ If you need install python package globally usage this command.
 
 
 Install via setup.py
---------------------
+====================
 
 If ou prefer usage setup tool and install without pip follow this pattern:
 
@@ -27,7 +27,7 @@ If ou prefer usage setup tool and install without pip follow this pattern:
 
 
 Install in virtual environment
-------------------------------
+==============================
 
 (Recommended for Python programming)
 

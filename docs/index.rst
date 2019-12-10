@@ -1,3 +1,4 @@
+=============================================
 ecsctl - command line tool for manage AWS ECS
 =============================================
 
@@ -10,37 +11,21 @@ I will prepare more examples and documentation when ecsctl will stable.
 Big thanks for Xiuming Chen for first iteration of this project https://github.com/cxmcc/ecsctl I added much more new
 features (it will problematic to cerate lot of pull requests) to this project so I decide create another repository.
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Introduction:
-
-   page/introduction
-
+.. include:: pages/introduction.rst
 
 .. toctree::
    :maxdepth: 1
-   :caption: Installation:
+   :caption: Contents:
 
-   page/installation
+   pages/introduction
+   pages/installation
+   pages/tutorials/index
+   pages/example
 
+..
+   Indices and tables
+   ==================
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials:
-
-   page/tutorials/index
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Reference:
-
-   page/example
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
-* :ref:`bibliography`
+   * :ref:`genindex`
+   * :ref:`modindex`
+   * :ref:`search`

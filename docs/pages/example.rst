@@ -1,10 +1,10 @@
-=======
+*******
 Example
-=======
+*******
 
 
 Title 1
--------
+=======
 
 asdfasdfasdf
 
@@ -17,7 +17,7 @@ Title 2
     asdfasdf
 
 
-Title 2
+Title 3
 ~~~~~~~
 
 
