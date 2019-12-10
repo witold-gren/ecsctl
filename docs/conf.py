@@ -71,7 +71,7 @@ release = '1.0'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'pl'
+language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -97,7 +97,11 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {}
+html_theme_options = {
+    'collapse_navigation': True,
+    'display_version': True,
+    'navigation_depth': 3,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -120,7 +124,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PythonTestingdoc'
+htmlhelp_basename = 'ecsctldoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -147,8 +151,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PythonTesting.tex', 'Python Testing Documentation',
-     'Witold Greń', 'manual'),
+    (master_doc, 'ecsctl.tex', 'ecsctl Documentation',
+     [author], 'manual'),
 ]
 
 
@@ -157,7 +161,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pythontesting', 'Python Testing Documentation',
+    (master_doc, 'ecsctl', 'ecsctl Documentation',
      [author], 1)
 ]
 
@@ -168,8 +172,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PythonTesting', 'Python Testing Documentation',
-     author, 'PythonTesting', 'One line description of project.',
+    (master_doc, 'ecsctl', 'ecsctl Documentation',
+     author, 'ecsctl', 'One line description of project.',
      'Miscellaneous'),
 ]
 
