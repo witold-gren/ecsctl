@@ -2,11 +2,11 @@
 Before start
 ************
 
-A convenient command line tool to view ECS cluster status and do troubleshooting.
-This tool is trying to provide similar functionality of kubectl for kubernetes.
-Of course, ECS and kubernetes are so different. Many features on kubernetes are not possible here in ECS.
+`ecsctl` is a convenient command line tool to view and troubleshoot ECS cluster.
+This tool is trying to provide similar functionality like `kubectl` for kubernetes.
+Of course, ECS and kubernetes is very different so many features are not avaliable on ECS.
 
-Before you start working with `ecsctl` check that tool was install correctly.
+Before you start working with `ecsctl` check if tool was installed correctly.
 
 .. code-block:: bash
 
