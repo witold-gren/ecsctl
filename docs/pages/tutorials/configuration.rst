@@ -1,5 +1,6 @@
+*************
 Configuration
-=============
+*************
 
 You must have the necessary privileges to configure the cluster. Also some functionality need extra privileges to work correctly.
 This tutorial not cover this functionality (AWS IAM Roles). For the future we will prepare example IAM Roles to get access
@@ -39,8 +40,6 @@ If you need see all parameter and many examples show help in set parameter.
 
     Options:
       --cluster-name TEXT
-      --docker-port TEXT
-      --docker-api-version TEXT
       --aws-access-key-id TEXT
       --aws-secret-access-key TEXT
       --aws-region TEXT
@@ -53,8 +52,42 @@ If you need see all parameter and many examples show help in set parameter.
       --help                        Show this message and exit.
 
 
+Configuration Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+*cluster-name*
+    your cluster name
+
+*aws-access-key-id*
+    your aws access key id if you don't usage IAM Role and AWS Profile
+
+*aws-secret-access-key*
+    your aws secret key if you don't usage IAM Role and AWS Profile
+
+*aws-region*
+    aws region when cluster was running
+
+*aws-session-token*
+    aws session token
+
+*aws-profile*
+    aws profile if you usage cross account permission
+
+*ssh-user*
+    user name for login to EC2 instance `[default: ec2-user]`
+
+*ssh-bastion-user*
+    user name in bastin host to login to EC2 instance `[default: ec2-user]`
+
+*ssh-bastion-ip*
+    bastion host ip address
+
+*ssh-key-location*
+    path to your ssh key `[default: ~/.ssh/id_rsa]`
+
+
 Configure by environment variables
-----------------------------------
+==================================
 
 If you need configure cluster access you are able usage virtual environments. Please set this variables:
 
@@ -73,7 +106,7 @@ If you need configure cluster access you are able usage virtual environments. Pl
 
 
 Configure by aws profile
-------------------------
+========================
 
 Create configuration for new cluster usage aws profile.
 
@@ -89,7 +122,7 @@ example:
 
 
 Configure by access_key and secret_access_key
----------------------------------------------
+=============================================
 
 Create configuration for new cluster usage access_key and secret_access_key.
 
@@ -105,7 +138,7 @@ example:
 
 
 Configure other parameters
---------------------------
+==========================
 
 This parameters is necessary if you need usage `exec` command to connect with you docker. By default `ecsctl` also configure other parameters:
 
@@ -127,7 +160,7 @@ If you need set extra parameters also usage this configuration:
 
 
 Check configuration
--------------------
+===================
 
 After finish configuration your cluster check that everything was set correctly:
 
@@ -194,7 +227,7 @@ Also your ar able check where is your configuration file if you need create back
 
 
 Switch cluster
---------------
+==============
 
 Last option is change context between clusters. The following command changes the context to a current cluster:
 
