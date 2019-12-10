@@ -53,8 +53,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Python Testing'
-copyright = '2018, Witold Greń'
+project = 'ecsctl'
+copyright = '2019, Witold Greń'
 author = 'Witold Greń'
 
 # The version info for the project you're documenting, acts as replacement for
