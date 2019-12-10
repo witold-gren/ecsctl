@@ -14,21 +14,21 @@ features (it will problematic to cerate lot of pull requests) to this project so
    :maxdepth: 1
    :caption: Introduction:
 
-   page/example
+   page/introduction
 
 
 .. toctree::
    :maxdepth: 1
    :caption: Installation:
 
-   page/example
+   page/installation
 
 
 .. toctree::
    :maxdepth: 1
    :caption: Tutorials:
 
-   page/example
+   page/tutorials/index
 
 
 .. toctree::
