@@ -1,29 +1,29 @@
-======================
-Building your own shop
-======================
+=======
+Example
+=======
 
 
-The sandbox site
-----------------
+Title 1
+-------
 
 asdfasdfasdf
 
 
-Browse the external sandbox site
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Title 2
+~~~~~~~
 
 .. warning::
 
     asdfasdf
 
 
-Run the sandbox locally
-~~~~~~~~~~~~~~~~~~~~~~~
+Title 2
+~~~~~~~
 
 
 .. code-block:: bash
 
-    $ git clone https://github.com/django-oscar/django-oscar.git
+    $ pip install git+https://github.com/witold-gren/ecsctl.git
 
 
 
