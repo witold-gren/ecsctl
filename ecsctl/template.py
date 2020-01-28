@@ -368,15 +368,16 @@ class TaskDefinition(ProxyTemplate):
                     secrets_param.append((_key, _param))
             if secrets_param:
                 add_execution_role_arn = True
-                response = boto_wrapper.ssm.get_parameters(
-                    Names=[x[1] for x in secrets_param], WithDecryption=False)
-                if response['InvalidParameters']:
-                    raise ValueError('Incorrect params: {}'.format(', '.join(response['InvalidParameters'])))
-                for obj in secrets_param:
-                    key, val = obj
-                    obj = list(filter(lambda x: x['Name'] == val, response['Parameters']))
-                    if obj: obj = obj[0]
-                    secrets.append({'name': key, 'valueFrom': obj['ARN']})
+                for list_patam in [secrets_param[i:i + 10] for i in range(0, len(secrets_param), 10)]:
+                    response = boto_wrapper.ssm.get_parameters(
+                        Names=[x[1] for x in list_patam], WithDecryption=False)
+                    if response['InvalidParameters']:
+                        raise ValueError('Incorrect params: {}'.format(', '.join(response['InvalidParameters'])))
+                    for obj in list_patam:
+                        key, val = obj
+                        obj = list(filter(lambda x: x['Name'] == val, response['Parameters']))
+                        if obj: obj = obj[0]
+                        secrets.append({'name': key, 'valueFrom': obj['ARN']})
                 container['secrets'] = secrets
             container_definitions.append(container)
         self.yaml['containerDefinitions'] = container_definitions
