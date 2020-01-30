@@ -431,10 +431,14 @@ def get_secret(ctx, family_prefix, variables, output, cluster):
         row = (first_col, second_col, third_col)
         if variables:
             third_col = humanize.naturaltime(now - third_col)
-            try:
-                _, app, name = first_col.split('.')
-            except Exception as e:
-                name = first_col
+            values = first_col.split('.')
+            if len(values) == 3:
+                _, app, name = values
+            elif len(values) == 2:
+                app = 'GLOBAL'
+                _, name = values
+            else:
+                continue
             row = [name, app, second_col, third_col]
             if output:
                 row.append(first_col)

@@ -1404,9 +1404,13 @@ class BotoWrapper:
     def all_secret(self, cluster=None, family_prefix=None, variables=None):
         parameters = {}
         for secret in self.__get_all_secret(cluster=cluster, task_definition_family=family_prefix):
-            try:
-                cluster, app, value = secret['Name'].split('.')
-            except Exception as e:
+            values = secret['Name'].split('.')
+            if len(values) == 3:
+                cluster, app, value = values
+            elif len(values) == 2:
+                app = 'GLOBAL'
+                cluster, value = values
+            else:
                 continue
             if not cluster in parameters:
                 parameters[cluster] = {}
@@ -1429,9 +1433,14 @@ class BotoWrapper:
 
         cluster = kwargs.pop('cluster', None)
         task_definition_family = kwargs.pop('task_definition_family', None)
-        if cluster and task_definition_family:
+        filters = []
+        if cluster and (task_definition_family and task_definition_family != 'GLOBAL'):
             filter_param = {'Key': 'Name', 'Values': ['{}.{}.'.format(cluster, task_definition_family)]}
-            kwargs['Filters'] = [filter_param]
+            filters.append(filter_param)
+        if not task_definition_family or task_definition_family == 'GLOBAL':
+            filter_param_general = {'Key': 'Name', 'Values': ['{}.'.format(cluster)]}
+            filters.append(filter_param_general)
+        kwargs['Filters'] = filters
 
         while True:
             resp = self.ssm.describe_parameters(**kwargs)
@@ -1464,7 +1473,10 @@ class BotoWrapper:
     def describe_secret(self, task_definition_family, cluster='default', simple=False):
         parameters, response = [], []
         for secret in self.__get_all_secret(cluster=cluster, task_definition_family=task_definition_family):
-            parameters.append(secret.get('Name'))
+            if task_definition_family != 'GLOBAL':
+                parameters.append(secret.get('Name'))
+            elif task_definition_family == 'GLOBAL' and len(secret.get('Name').split('.')) == 2:
+                parameters.append(secret.get('Name'))
         for cut_parameters in [parameters[i:i + 10] for i in range(0, len(parameters), 10)]:
             r = self.ssm.get_parameters(Names=cut_parameters, WithDecryption=True)
             if not 'Parameters' in response:

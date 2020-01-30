@@ -240,6 +240,10 @@ def describe_tasks(ctx, task_definition_family, export, output, cluster):
     cmd::ecsctl describe secret my-app
 
     \b
+    # Describe global secret
+    cmd::ecsctl describe secret GLOBAL
+
+    \b
     # Describe secret from task definition family -o yaml
     cmd::ecsctl describe secret my-app -o yaml
 

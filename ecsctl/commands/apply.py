@@ -10,9 +10,9 @@ from .. import core, display, exceptions
 @click.option('-t', '--template', 'template_path', type=click.Path(exists=True),
               help="Select file or folder that contains the template configuration to apply.")
 @click.option('-e', '--env', 'envs', multiple=True,
-              help="During update task-definition also update service.")
+              help="Load environment variable and apply to all object usage Jinja2 templates.")
 @click.option('--env-file', 'env_file', multiple=True,
-              help="During update task-definition also update service.")
+              help="Load environment variable from file and apply to all object usage Jinja2 templates.")
 @click.option('--dry-run', is_flag=True, default=False,
               help="If true, only print the object that would be sent, without sending it")
 @click.option('--deploy', is_flag=True, default=False,
@@ -53,6 +53,10 @@ def apply(ctx, file_path, template_path, dry_run, deploy, envs, env_file, cluste
     \b
     # Check yaml file with task definition
     cmd::ecsctl apply -f my-app/task-definition.yaml --dry-run
+
+    \b
+    # Apply secret witout application name in ssm name eg. CLUSTER.VARIABLE=VALUE
+    cmd::ecsctl apply -f my-app/secret.yaml --disable-secret-name
     """
     bw = ctx.obj['bw']
     if not cluster:

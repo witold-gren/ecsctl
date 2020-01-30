@@ -64,6 +64,10 @@ def secret_name(cluster, app, variable):
     return "{}.{}.{}".format(cluster, app, variable)
 
 
+def secret_name_global(cluster, variable):
+    return "{}.{}".format(cluster, variable)
+
+
 class ProxyTemplate:
 
     def __init__(self, name=None, tags=None, yaml=None, json=None, clean=True, cluster=None, **kwargs):
@@ -363,7 +367,9 @@ class TaskDefinition(ProxyTemplate):
                     else:
                         secrets_param.append((_key, _param))
                 else:
-                    _param = secret_name(self.cluster, self.name, var)
+                    _param = secret_name_global(self.cluster, var)
+                    if self.name != 'GLOBAL':
+                        _param = secret_name(self.cluster, self.name, var)
                     _key = var
                     secrets_param.append((_key, _param))
             if secrets_param:
@@ -536,7 +542,14 @@ class Secret(ProxyTemplate):
             del self.template['metadata']['key_id']
         spec = {}
         for x in self.json:
-            _, app, var = x.get('Name').split('.')
+            values = x.get('Name').split('.')
+            if len(values) == 3:
+                _, app, var = values
+            elif len(values) == 2:
+                app = 'GLOBAL'
+                _, var = values
+            else:
+                continue
             spec[var] = x['Value']
         self.template['metadata']['name'] = app
         self.template['spec'] = spec
@@ -547,7 +560,10 @@ class Secret(ProxyTemplate):
             self.run_before()
         resp = []
         for key, value in self.yaml.items():
-            name = secret_name(self.cluster, self.name, key)
+            if self.name == 'GLOBAL':
+                name = secret_name_global(self.cluster, key)
+            else:
+                name = secret_name(self.cluster, self.name, key)
             param = dict(
                 Name=name,
                 Value=value,
@@ -569,7 +585,12 @@ class Secret(ProxyTemplate):
         return resp
 
     def _check_params(self, boto_wrapper):
-        names = [secret_name(self.cluster, self.name, key) for key in self.yaml.keys()]
+        names = []
+        for key in self.yaml.keys():
+            if self.name == 'GLOBAL':
+                names.append(secret_name_global(self.cluster, key))
+            else:
+                names.append(secret_name(self.cluster, self.name, key))
         parameters, invalid_parameters = [], []
         for name_part in [names[i:i + 10] for i in range(0, len(names), 10)]:
             response = boto_wrapper.ssm.get_parameters(
