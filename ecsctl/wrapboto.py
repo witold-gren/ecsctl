@@ -827,6 +827,8 @@ class BotoWrapper:
         elif sr.get('port', None):
             name = service['serviceName']
             dns_records = [{'Type': 'A', 'TTL': 60}]
+        else:
+            raise BotoWrapperException('Please set `container_name` and `container_port` or `port`')
 
         response = self.servicediscovery.create_service(
             Name=name,
