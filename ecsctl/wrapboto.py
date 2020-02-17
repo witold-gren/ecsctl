@@ -794,7 +794,7 @@ class BotoWrapper:
         for x, service in enumerate(param.get('serviceRegistries', [])):
             if 'registryArn' in service and service['registryArn'] is None:
                 namespace = service.pop('_namespace', None)
-                arn = self._execute_create_sercive_deiscovery(service=param, namespace=namespace)
+                arn = self._execute_create_sercive_deiscovery(service=param, namespace=namespace, number=x)
                 param['serviceRegistries'][x]['registryArn'] = arn
 
         try:
@@ -805,7 +805,8 @@ class BotoWrapper:
             raise BotoWrapperException("{}\n{}".format(err.fmt.split('\n')[0], err.kwargs['report']))
         return resp
 
-    def _execute_create_sercive_deiscovery(self, service, namespace=None):
+    def _execute_create_sercive_deiscovery(self, service, namespace=None, number=None):
+        sr = service['service_registries'][number]
         namespaces, ns = self.servicediscovery.list_namespaces(MaxResults=100), None
         if len(namespaces['Namespaces']) == 1:
             ns = namespaces['Namespaces'][0]
@@ -819,16 +820,23 @@ class BotoWrapper:
                 'Select namespaces `spec.service_registries._namespace: ` for service discovery in service file. '
                 'Current you have {} namespaces: {}'.format(
                     len(namespaces['Namespaces'], ','.join([x['Name'] for x in namespaces['Namespaces']]))))
-        dns_record_type = 'SRV'
+
+        if sr.get('container_name', None) and sr.get('container_port', None):
+            name = '_{}._tcp'.format(service['serviceName'])
+            dns_records = [{'Type': 'SRV', 'TTL': 60}]
+        elif sr.get('port', None):
+            name = service['serviceName']
+            dns_records = [{'Type': 'A', 'TTL': 60}]
+
         response = self.servicediscovery.create_service(
-            Name='_{}._tcp'.format(service['serviceName']),
+            Name=name,
             NamespaceId=ns['Id'],
             CreatorRequestId=service['serviceName'],
             Description='Service discovery for ECS service `{}`.'.format(service['serviceName']),
             DnsConfig={
                 'NamespaceId': ns['Id'],
                 'RoutingPolicy': 'MULTIVALUE',                  # TODO: check what it means? MULTIVALUE/WEIGHTED
-                'DnsRecords': [{'Type': dns_record_type, 'TTL': 60}]
+                'DnsRecords': dns_records
             }
         )
         return response['Service']['Arn']
