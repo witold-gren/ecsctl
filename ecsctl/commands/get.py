@@ -275,7 +275,9 @@ def get_task(ctx, cluster, sort_by, status, items, quiet, json_path, output):  #
             task_id = display.simple_task(r['taskArn'])
             task_def = display.simple_task_definition(r['taskDefinitionArn'])
             age = humanize.naturaltime(now - created_at)
-            instance = instances[r['containerInstanceArn']]['ec2_data']['PrivateIpAddress']
+            instance = None
+            if 'containerInstanceArn' in r:
+                instance = instances[r['containerInstanceArn']]['ec2_data']['PrivateIpAddress']
             containers = ' | '.join([x['name'] for x in r['containers']])
             ports = []
             for c in r.get('containers', []):
