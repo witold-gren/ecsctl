@@ -1,3 +1,6 @@
+import time
+import datetime
+
 import click
 
 from ..colorize import HelpColorsGroup
@@ -5,6 +8,8 @@ from ..colorize import HelpColorsGroup
 
 @click.group(cls=HelpColorsGroup, name='logs', short_help='Print the logs for a container usage CloudWatch.', invoke_without_command=True)
 @click.argument('task', required=True)
+@click.option('-f', '--follow', is_flag=True, default=False,
+              help="Specify if the logs should be streamed.")
 @click.option('--container',
               help="Select one container from selected task.")
 @click.option('--start-time', type=click.DateTime(formats=None),
@@ -19,11 +24,15 @@ from ..colorize import HelpColorsGroup
 @click.option('-c', '--cluster',
               help="Specify cluster to execute command. Default usage cluster from context.")
 @click.pass_context
-def logs(ctx, task, *args, **kwargs):
+def logs(ctx, task, follow, *args, **kwargs):
     """
     \b
     # Show logs from one selected task
     cmd::ecsctl logs 41ff5a8d-56ed-431f-8d2a-f056826b7cde
+
+    \b
+    # Show logs from one selected task and stream follow
+    cmd::ecsctl logs -f 41ff5a8d-56ed-431f-8d2a-f056826b7cde
 
     \b
     # Show logs from one selected task between selected time
@@ -37,14 +46,22 @@ def logs(ctx, task, *args, **kwargs):
     # Show logs from one selected task between selected time and selected container and filter response
     cmd::ecsctl logs 41ff5a8d-56ed-431f-8d2a-f056826b7cde -c gunicorn --start 2019-09-07T19:00:00 --end 2019-09-07T22:00:00 --filter "ERRORCODE: -1"
     """
-    cluster = kwargs.pop('cluster', None)
+    cluster, timestamp = kwargs.pop('cluster', None), None
+
     if not cluster:
         cluster = ctx.obj['cluster']
-
     bw = ctx.obj['bw']
-    resp, err = bw.logs(task, cluster, *args, **kwargs)
+    while True:
+        timestamp = datetime.datetime.now()
+        resp, err = bw.logs(task, cluster, *args, **kwargs)
 
-    if err:
-        click.echo(click.style(resp, fg='red'))
-    else:
-        click.echo(resp)
+        if err:
+            click.echo(click.style(resp, fg='red'))
+        elif resp:
+            click.echo(resp)
+
+        if not follow or err:
+            break
+
+        kwargs['start_time'] = timestamp
+        time.sleep(1)

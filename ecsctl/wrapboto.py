@@ -1238,6 +1238,7 @@ class BotoWrapper:
                     awslogs_group[0], prefix, containers, get_bytes_size=byte_size,
                     start_time=start_time, end_time=end_time, selected_task=selected_task)
 
+                from_head = True
                 if not start_time and not end_time:
                     from_head = False
 
@@ -1256,8 +1257,6 @@ class BotoWrapper:
                     events = sorted(events, key=lambda k: k[0])
                     for event in events:
                         print(event[1])
-                else:
-                    print('[empty log]')
                 return '', False
         return "This task don\'t usage CloudWatch Logs.", False
 
