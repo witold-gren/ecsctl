@@ -11,10 +11,10 @@ from .colorize import HelpColorsGroup
 @click.pass_context
 def cli(ctx):
     aws_credentials = {}
-    for k, v in read_config().items():
+    for k, v in read_config(show_temporary=True).items():
         if k in ctx.obj:
             ctx.obj[k] = v
-        if str(k).startswith('aws'):
+        if str(k).startswith('aws') or str(k).startswith('_aws'):
             aws_credentials[k] = v
     ctx.obj['bw'] = wrapboto.BotoWrapper(**aws_credentials)
 

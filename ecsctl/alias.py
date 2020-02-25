@@ -33,8 +33,10 @@ class AliasedGroup(HelpColorsGroup):
             'alb': 'loadbalancer',
             'lb': 'loadbalancer',
             'hz': 'hosted-zones',
+            '53': 'hosted-zones',
             'zone': 'hosted-zones',
-            'route53': 'hosted-zones'
+            'route53': 'hosted-zones',
+            'cw': 'cloudwatch'
         }
         if cmd_name in mapping:
             rv = click.Group.get_command(self, ctx, mapping[cmd_name])

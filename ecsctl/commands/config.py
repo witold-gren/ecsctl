@@ -15,6 +15,8 @@ def config():
 @click.option('--aws-access-key-id')
 @click.option('--aws-secret-access-key')
 @click.option('--aws-region')
+@click.option('--aws-role-arn')
+@click.option('--aws-mfa-serial')
 @click.option('--aws-session-token')
 @click.option('--aws-profile')
 @click.option('--ssh-user', default="ec2-user", show_default=True)
@@ -35,6 +37,10 @@ def config_set(ctx, name, cluster_name, **kwargs):
     \b
     # Set bastion host IP and ssh key
     cmd::ecsctl config set my-own-config-name --ssh-bastion-ip 1.2.3.4 --ssh-key-location ~/.ssh/my_extra_key
+
+    \b
+    # Set bastion host IP and ssh key
+    cmd::ecsctl config set my-own-config-name --cluster-name my-cluster --aws-profile XXX --aws-region ZZZ --aws-role-arn XXX --aws-mfa-serial XXX
     """
     out = update_config(name, cluster_name, **kwargs)
     click.echo(out)
@@ -54,9 +60,10 @@ def context_set(ctx, name, **kwargs):
 
 
 @config.command(name='show')
-@click.option('--show-path', default=None, is_flag=True)
-@click.option('--show-all', default=None, is_flag=True)
-def config_show(show_path, show_all=None):
+@click.option('-p', '--path', default=False, is_flag=True)
+@click.option('-a', '--all', default=False, is_flag=True)
+@click.option('-t', '--temporary', default=False, is_flag=True)
+def config_show(path=None, all=None, temporary=None):
     """
     \b
     # Show configuration for default cluster
@@ -70,12 +77,12 @@ def config_show(show_path, show_all=None):
     # Show path for config file
     cmd::ecsctl config show --show-path
     """
-    config = read_config(show_path, show_all)
-    if config and not show_all:
+    config = read_config(path, all, temporary)
+    if config and not all:
         output = ['[{}]'.format(get_default_context())]
         for k, v in config.items():
             output.append('{} = {}'.format(k, v))
-    elif config and show_all:
+    elif config and all:
         output = []
         for name, params in config.items():
             output.append('[{}]'.format(name))

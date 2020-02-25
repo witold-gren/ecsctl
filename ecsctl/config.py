@@ -15,6 +15,8 @@ default_config = {
     'cluster': os.environ.get('AWS_ECS_CLUSTER_NAME', 'default'),
     'aws_access_key_id': None,
     'aws_secret_access_key': None,
+    'aws_role_arn': None,
+    'aws_mfa_serial': None,
     'aws_region': None,
     'aws_session_token': None,
     'aws_profile': None,
@@ -22,6 +24,10 @@ default_config = {
     'ssh_bastion_user': os.environ.get('AWS_ECS_SSH_BASTION_USER', 'ec2-user'),
     'ssh_bastion_ip': os.environ.get('AWS_ECS_SSH_BASTION_IP', None),
     'ssh_key_location': os.environ.get('AWS_ECS_SSH_KEY_LOCATION', "~/.ssh/id_rsa"),
+    '_aws_expiration': None,
+    '_aws_session_token': None,
+    '_aws_access_key_id': None,
+    '_aws_secret_access_key': None
 }
 
 
@@ -49,7 +55,7 @@ def get_default_context():
     return default
 
 
-def read_config(show_file_path=None, show_all=None):
+def read_config(show_file_path=None, show_all=None, show_temporary=None):
     context = get_default_context()
     parser = get_config_parser()
     rv, pars = {}, {}
@@ -61,11 +67,17 @@ def read_config(show_file_path=None, show_all=None):
         for section in parser.sections():
             parse = {}
             for key, value in parser.items(section):
-                parse[key] = value
+                if not key.startswith('_aws'):
+                    parse[key] = value
+                if show_temporary and key.startswith('_aws'):
+                    parse[key] = value
             rv[section] = parse
     else:
         for key, value in pars:
-            rv[key] = value
+            if not key.startswith('_aws'):
+                rv[key] = value
+            if show_temporary and key.startswith('_aws'):
+                rv[key] = value
     return rv
 
 

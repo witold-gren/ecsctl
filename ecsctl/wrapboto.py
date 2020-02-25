@@ -1533,3 +1533,6 @@ class BotoWrapper:
         except:
             out = []
         return out
+
+    def all_cloudwatch_alarm(self, sevice=None, status=None):
+        return self.cloudwatch.get_paginator('describe_alarms')
