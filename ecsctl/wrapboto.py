@@ -1,12 +1,13 @@
 import re
 import boto3
-import pprint
+
 import stringcase
 import oyaml as yaml
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from botocore.exceptions import ClientError, ParamValidationError
-from . import template
+
+from . import template, config
 
 
 class BotoWrapperException(Exception):
@@ -17,17 +18,7 @@ class BotoWrapper:
 
     def __init__(self, session=None, *args, **kwargs):
         if not session:
-            aws_access_key_id = kwargs.get('aws_access_key_id')
-            aws_secret_access_key = kwargs.get('aws_secret_access_key')
-            aws_session_token = kwargs.get('aws_session_token')
-            region_name = kwargs.get('aws_region')
-            profile_name = kwargs.get('aws_profile')
-            session = boto3.session.Session(
-                aws_access_key_id=aws_access_key_id,
-                aws_secret_access_key=aws_secret_access_key,
-                aws_session_token=aws_session_token,
-                region_name=region_name,
-                profile_name=profile_name)
+            session = self.prepare_session(**kwargs)
         self.session = session
         self.ecs_client = session.client('ecs')
         self.ec2_client = session.client('ec2')
@@ -38,6 +29,78 @@ class BotoWrapper:
         self.sts = session.client('sts')
         self.elb = session.client('elbv2')
         self.route53 = session.client('route53')
+        self.cloudwatch = boto3.client('cloudwatch')
+
+    def prepare_session(self, **kwargs):
+        aws_access_key_id, aws_secret_access_key, aws_session_token, \
+        aws_region_name, aws_profile_name = self.assumrole(**kwargs)
+
+        return boto3.session.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+            region_name=aws_region_name,
+            profile_name=aws_profile_name)
+
+    def assumrole(self, **kwargs):
+        aws_access_key_id = kwargs.get('aws_access_key_id')
+        aws_secret_access_key = kwargs.get('aws_secret_access_key')
+        aws_session_token = kwargs.get('aws_session_token')
+        aws_region_name = kwargs.get('aws_region')
+        aws_profile_name = kwargs.get('aws_profile')
+        aws_mfa_serial = kwargs.get('aws_mfa_serial')
+        aws_role_arn = kwargs.get('aws_role_arn')
+        duration_seconds = kwargs.get('duration_seconds', 3600)
+        _expiration = kwargs.get('_aws_expiration', None)
+        _aws_access_key_id = kwargs.get('_aws_access_key_id', None)
+        _aws_secret_access_key = kwargs.get('_aws_secret_access_key', None)
+        _aws_session_token = kwargs.get('_aws_session_token', None)
+
+        if _expiration:
+            if datetime.now() < datetime.fromisoformat(_expiration) and \
+                    _aws_access_key_id and _aws_secret_access_key and _aws_session_token:
+                return _aws_access_key_id, _aws_secret_access_key, _aws_session_token, aws_region_name, aws_profile_name
+
+        session = boto3.session.Session(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+            region_name=aws_region_name,
+            profile_name=aws_profile_name)
+        sts = session.client('sts')
+
+        if aws_mfa_serial:
+            mfa_otp = input("Enter the MFA code: ")
+            if aws_role_arn:
+                credentials = sts.assume_role(
+                    RoleArn=aws_role_arn,
+                    RoleSessionName='session',
+                    DurationSeconds=duration_seconds,
+                    SerialNumber=aws_mfa_serial,
+                    TokenCode=mfa_otp)
+            else:
+                credentials = sts.get_session_token(
+                    DurationSeconds=duration_seconds,
+                    SerialNumber=aws_mfa_serial,
+                    TokenCode=mfa_otp)
+        elif aws_role_arn:
+            credentials = sts.assume_role(
+                RoleArn=aws_role_arn,
+                RoleSessionName='session',
+                DurationSeconds=duration_seconds)
+
+        if aws_mfa_serial or aws_role_arn:
+            aws_access_key_id = credentials['Credentials']['AccessKeyId']
+            aws_secret_access_key = credentials['Credentials']['SecretAccessKey']
+            aws_session_token = credentials['Credentials']['SessionToken']
+            endtime = datetime.now() + timedelta(seconds=3600)
+            data = {'_aws_expiration': endtime.isoformat(),
+                    '_aws_session_token': aws_session_token,
+                    '_aws_access_key_id': aws_access_key_id,
+                    '_aws_secret_access_key': aws_secret_access_key}
+            config.update_config(config.get_default_context(), None, **data)
+
+        return aws_access_key_id, aws_secret_access_key, aws_session_token, aws_region_name, aws_profile_name
 
     def create_object(self, param, deploy=None, tmpl=None):
         func = getattr(self, '_execute_create_{}'.format(stringcase.snakecase(tmpl.template_name)))
