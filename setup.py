@@ -16,7 +16,7 @@ install_requires = [
     'pyyaml>=5.1.2',
     'oyaml>=0.9',
     'pygments>=2.4.2',
-    'jsonpath-ng>=1.4.3',
+    'jsonpath-ng==1.4.3',
     'Jinja2>=2.10.3',
     'MarkupSafe>=1.1.1'
 ]
