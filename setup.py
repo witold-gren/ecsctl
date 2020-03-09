@@ -32,7 +32,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='ecsctl',
-    version='20200226',
+    version='20200309',
     description='kubectl-style command line client for AWS ECS.',
     license="MIT license",
     long_description=long_description,
