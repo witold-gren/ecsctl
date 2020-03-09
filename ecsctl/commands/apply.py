@@ -55,8 +55,8 @@ def apply(ctx, file_path, template_path, dry_run, deploy, envs, env_file, cluste
     cmd::ecsctl apply -f my-app/task-definition.yaml --dry-run
 
     \b
-    # Apply secret witout application name in ssm name eg. CLUSTER.VARIABLE=VALUE
-    cmd::ecsctl apply -f my-app/secret.yaml --disable-secret-name
+    # Apply secret to SSM
+    cmd::ecsctl apply -f my-app/secret.yaml
     """
     bw = ctx.obj['bw']
     if not cluster:
