@@ -71,11 +71,15 @@ def config_show(path=None, all=None, temporary=None):
 
     \b
     # Show configuration for all configured clusters
-    cmd::ecsctl config show --show-all
+    cmd::ecsctl config show --all
 
     \b
     # Show path for config file
-    cmd::ecsctl config show --show-path
+    cmd::ecsctl config show --path
+
+    \b
+    # Show cached AWS credentials in config file
+    cmd::ecsctl config show --temporary
     """
     config = read_config(path, all, temporary)
     if config and not all:
