@@ -276,8 +276,10 @@ def get_task(ctx, cluster, sort_by, status, items, quiet, json_path, output):  #
             task_def = display.simple_task_definition(r['taskDefinitionArn'])
             age = humanize.naturaltime(now - created_at)
             instance = None
+            public_ip = None
             if 'containerInstanceArn' in r:
                 instance = instances[r['containerInstanceArn']]['ec2_data']['PrivateIpAddress']
+                public_ip = instances[r['containerInstanceArn']]['ec2_data'].get('PublicIpAddress', '')
             containers = ' | '.join([x['name'] for x in r['containers']])
             ports = []
             for c in r.get('containers', []):
@@ -309,6 +311,7 @@ def get_task(ctx, cluster, sort_by, status, items, quiet, json_path, output):  #
 
             row = [task_id, status, containers, '\n'.join(ports), task_def, age, instance]
             if output:
+                row[-1] = public_ip
                 row.append(logs)
             # if filter_val:
             #     raise ValueError
@@ -321,6 +324,9 @@ def get_task(ctx, cluster, sort_by, status, items, quiet, json_path, output):  #
 
         if not quiet:
             headers = ['TASK ID', 'STATUS', 'CONTAINERS', 'PORTS', 'TASK DEFINITION', 'AGE', 'EC2 PRIVATE IP', 'LOGS']
+
+        if output:
+            headers[-2] = 'EC2 PUBLIC IP'
     output = tabulate.tabulate(out, headers=headers, tablefmt='plain')
     click.echo(output)
 
@@ -549,3 +555,39 @@ def get_zone(ctx, hosted_zone):
             out.append([item.get('Name'), item.get('Type'), item.get('TTL'), ','.join(r)])
         output = tabulate.tabulate(out, headers=headers, tablefmt='plain')
     click.echo(output)
+
+
+@get.command(name='cloudwatch', short_help="List cloudwatch configuration in your cluster.")
+@click.option('--service', default=None,
+              help="Filter task definition family usage prefix name.")
+@click.option('--status', type=click.Choice(TASK_DEFINITION_STATUS), default='ACTIVE', show_default=True,
+              help="Filter task definition family usage status.")
+@click.pass_context
+def get_cloudwatch_alarm(ctx, service, status):
+    """
+    \b
+    # Show all active task definition family.
+    cmd::ecsctl get cloudwatch
+
+    \b
+    # Show all active task defunition family with filter name.
+    cmd::ecsctl get cloudwatch --service my-service
+
+    \b
+    # Show all inactive task defunition family.
+    cmd::ecsctl get cloudwatch --status INACTIVE
+    """
+    bw = ctx.obj['bw']
+    paginator = bw.all_cloudwatch_alarm(sevice=service, status=status)
+    for response in paginator.paginate(StateValue='INSUFFICIENT_DATA'):
+        print(response)
+    # out = []
+    # for r in records:
+    #     familly_name = r[0]
+    #     last_task = r[1]
+    #     count = r[2]
+    #     row = (familly_name, count, last_task, status)
+    #     out.append(row)
+    # headers = ['TASK FAMILLY NAME', 'REVISIONS', 'LAST TASK DEFINITION', 'STATUS', ]
+    # output = tabulate.tabulate(out, headers=headers, tablefmt='plain')
+    # click.echo(output)
