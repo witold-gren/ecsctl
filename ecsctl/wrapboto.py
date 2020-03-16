@@ -29,7 +29,6 @@ class BotoWrapper:
         self.sts = session.client('sts')
         self.elb = session.client('elbv2')
         self.route53 = session.client('route53')
-        self.cloudwatch = boto3.client('cloudwatch')
 
     def prepare_session(self, **kwargs):
         aws_access_key_id, aws_secret_access_key, aws_session_token, \
